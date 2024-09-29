@@ -1,15 +1,15 @@
+import React, { SetStateAction, useState } from "react";
 import Logo from "/public/assets/logo-mobile.svg";
 import Chevrondonw from "/public/assets/icon-chevron-down.svg";
 import plus from "/public/assets/icon-add-task-mobile.svg";
 import Verical from "/public/assets/icon-vertical-ellipsis.svg";
 import borad from "/public/assets/icon-board.svg";
-import { SetStateAction, useState } from "react";
-import data from "../data.json"; // Assuming your JSON structure has a "boards" key
+import data from "../data.json";
 
-export default function Header() {
+export default function Header({ onSelectBoard }) {
   const [showe, setshowe] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [boards, setBoards] = useState(data.boards); // Now boards are stored in state for dynamic updates
+  const [boards, setBoards] = useState(data.boards);
 
   const showes = () => {
     setshowe((prevState) => !prevState);
@@ -17,11 +17,11 @@ export default function Header() {
 
   const handleBoardClick = (index: number | SetStateAction<null>) => {
     setSelectedIndex(index);
+    onSelectBoard(boards[index]); // Pass the selected board to the parent
   };
 
-  // Function to add a new board dynamically
   const addBoard = () => {
-    const newBoard = { name: `Board ${boards.length + 1}` };
+    const newBoard = { name: `Board ${boards.length + 1}`, columns: [] };
     setBoards([...boards, newBoard]);
   };
 
@@ -39,7 +39,7 @@ export default function Header() {
 
         <div className="flex items-center gap-[15px]">
           <div className="bg-[#635FC7] w-[40px] h-[32px] flex justify-center items-center rounded-[10px]">
-            <img src={plus} alt="Add Task" onClick={addBoard} />{" "}
+            <img src={plus} alt="Add Task" onClick={addBoard} />
           </div>
           <img src={Verical} alt="" />
         </div>
@@ -52,33 +52,33 @@ export default function Header() {
             className="fixed inset-0 bg-black bg-opacity-50 z-10"
           ></div>
 
-          <div className="fixed inset-0 flex justify-center max-h-[300px] mt-[100px] z-20">
-            <div className="bg-[#2B2C37] w-[240px] gap-[10px] flex flex-col bg-gray-100 shadow-lg rounded-md">
+          <div className="fixed inset-0 flex justify-center mt-[100px] z-20">
+            <div className="bg-[#2B2C37] w-[240px] gap-[10px] flex flex-col bg-gray-100 shadow-lg rounded-md max-h-[400px] overflow-y-auto">
               <h1 className="mt-[10px] ml-[20px]">
-                ALL BOARDS ({boards.length}){" "}
+                ALL BOARDS ({boards.length})
               </h1>
-              {Array.isArray(boards) &&
-                boards.map((board, index) => (
-                  <div
-                    key={index}
-                    onClick={() => handleBoardClick(index)}
-                    className={`flex w-[200px] h-[48px] rounded-br-[20px] rounded-tr-[20px] font-bold text-[15px] gap-[10px] items-center p-[20px] cursor-pointer 
-                      ${
-                        selectedIndex === index
-                          ? "bg-[#635FC7] text-white"
-                          : "bg-[#E4EBFA] hover:bg-[#A8B4FF] text-gray-800"
-                      }`}
-                  >
-                    <img className="" src={borad} alt="Board Icon" />
-                    <h1>{board.name}</h1>
-                  </div>
-                ))}
+
+              {boards.map((board, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleBoardClick(index)}
+                  className={`flex w-[200px] h-[48px] rounded-br-[20px] rounded-tr-[20px] font-bold text-[15px] gap-[10px] items-center p-[20px] cursor-pointer
+              ${
+                selectedIndex === index
+                  ? "bg-[#635FC7] text-white"
+                  : "bg-[#E4EBFA] hover:bg-[#A8B4FF] text-gray-800"
+              }`}
+                >
+                  <img src={borad} alt="Board Icon" />
+                  <h1>{board.name}</h1>
+                </div>
+              ))}
 
               <div
                 onClick={addBoard}
                 className="flex w-[200px] h-[48px] rounded-br-[20px] rounded-tr-[20px] font-bold text-[15px] gap-[10px] items-center p-[20px] cursor-pointer bg-[#E4EBFA] hover:bg-[#A8B4FF] text-gray-800"
               >
-                <img className="" src={borad} alt="Board Icon" />
+                <img src={borad} alt="Board Icon" />
                 <h1>+ Create New Board</h1>
               </div>
             </div>
