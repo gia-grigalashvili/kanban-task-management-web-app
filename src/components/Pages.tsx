@@ -7,20 +7,16 @@ export default function Pages({ selectedBoard }) {
 
   return (
     <div className="flex flex-col  h-[calc(100vh-80px)] overflow-y-auto">
-      {/* Board Name */}
       <h1 className="text-xl font-medium mb-4">{name}</h1>
 
-      {/* Render columns */}
       <div className="flex gap-[24px]">
-        {Array.isArray(columns) &&
+        {Array.isArray(columns) && columns.length > 0 ? (
           columns.map((column, columnIndex) => (
             <div key={columnIndex} className="">
-              {/* Column Name */}
               <h2 className="font-semibold mb-4 text-lg">
                 {column.name} ({column.tasks?.length || 0})
               </h2>
 
-              {/* Tasks in the column */}
               <div>
                 {Array.isArray(column.tasks) && column.tasks.length > 0 ? (
                   <ul className="flex flex-col gap-2">
@@ -38,7 +34,15 @@ export default function Pages({ selectedBoard }) {
                 )}
               </div>
             </div>
-          ))}
+          ))
+        ) : (
+          <div className="flex justify-center items-center h-full flex justify-center text-center flex-col">
+            <h1>This board is empty. Create a new column to get started.</h1>
+            <button className="bg-blue-500  text-white p-[10px] rounded-[30px]">
+              + Add New Column
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
