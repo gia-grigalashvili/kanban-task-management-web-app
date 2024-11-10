@@ -36,7 +36,7 @@ export default function Pages({ selectedBoard }) {
             </div>
           ))
         ) : (
-          <div className="flex justify-center items-center h-full flex justify-center text-center flex-col">
+          <div className="flex mt-[100px] justify-center items-center h-full flex justify-center text-center flex-col">
             <h1>This board is empty. Create a new column to get started.</h1>
             <button className="bg-blue-500  text-white p-[10px] rounded-[30px]">
               + Add New Column
