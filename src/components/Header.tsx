@@ -101,7 +101,7 @@ export default function Header({ onSelectBoard }) {
 
       {showAddTaskForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-[#2B2C37] flex flex-col mt-[200px] gap-[30px] text-white p-[30px] w-[343px] h-[660px] rounded shadow-lg relative overflow-y-auto">
+          <div className="bg-[#2B2C37] flex flex-col mt-[200px] gap-[30px] text-white p-[30px] w-[363px] h-[700px] rounded shadow-lg relative overflow-y-auto">
             {" "}
             {/* Add overflow-y-auto here */}
             <div className="flex items-center justify-between">
@@ -150,6 +150,14 @@ export default function Header({ onSelectBoard }) {
             <button className="bg-[#ffff] cursor-pointer p-[10px] rounded-[30px]">
               <h1 className="text-[#635FC7]">+ Add New Subtask</h1>
             </button>
+            <div>
+              <h1>Status</h1>
+              <select className="w-[295px]  h-[50px ] bg-[#b4acac] p-[10px] border bg-transparent border-[#828FA340] text-white">
+                <option value="todo">To Do</option>
+                <option value="doing">Doing</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
             <button className="bg-[#1829db] cursor-pointer p-[10px] rounded-[30px]">
               Create Task
             </button>

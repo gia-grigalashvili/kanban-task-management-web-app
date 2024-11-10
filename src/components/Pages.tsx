@@ -23,9 +23,24 @@ export default function Pages({ selectedBoard }) {
         {Array.isArray(columns) && columns.length > 0 ? (
           columns.map((column, columnIndex) => (
             <div key={columnIndex}>
-              <h2 className="font-semibold mb-4 text-lg">
-                {column.name} ({column.tasks?.length || 0})
-              </h2>
+              <div className="flex gap-[20px]  justify-center items-center ">
+                <div
+                  className="w-[15px] h-[15px] rounded-[50%]"
+                  style={{
+                    backgroundColor:
+                      column.name.toLowerCase() === "todo"
+                        ? "#49C4E5"
+                        : column.name.toLowerCase() === "done"
+                        ? "#67E2AE"
+                        : column.name.toLowerCase() === "doing"
+                        ? "#8471F2"
+                        : "#5a2d2d",
+                  }}
+                ></div>
+                <h2 className="font-semibold mb-4 text-lg">
+                  {column.name} ({column.tasks?.length || 0})
+                </h2>
+              </div>
 
               <div>
                 {Array.isArray(column.tasks) && column.tasks.length > 0 ? (
@@ -59,13 +74,26 @@ export default function Pages({ selectedBoard }) {
       </div>
 
       {/* Conditionally render the small div when showMessage is true */}
-      {/* {showMessage && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-[#fffff]">
-            <h1>hello</h1>
+      {showMessage && (
+        <div className="fixed inset-0 flex items-center  justify-center bg-black bg-opacity-50">
+          <div className="bg-[#FFFFFF] rounded  w-[343px] p-[15px] ">
+            <h1>Add New Board</h1>
+            <div className="flex flex-col gap-[10px]">
+              <h1 className="text-[15px]">Board Name</h1>
+              <input
+                className="w-[295px] h-[40px] p-[10px] border bg-transparent border-[#828FA340]"
+                type="text"
+              />
+            </div>
+            <div className="flex flex-col gap-[10px]">
+              <h1>Board Columns</h1>
+              <div>
+                <input type="text" />
+              </div>
+            </div>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 }
