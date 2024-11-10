@@ -1,18 +1,28 @@
+import React, { useState } from "react";
+
 export default function Pages({ selectedBoard }) {
+  // State to track visibility of the small div
+  const [showMessage, setShowMessage] = useState(false);
+
   if (!selectedBoard) {
     return <div>Please select a board to see its columns.</div>;
   }
 
   const { name, columns } = selectedBoard;
 
+  // Function to handle the button click
+  const handleAddNewColumn = () => {
+    setShowMessage(true); // Show the small div with the message
+  };
+
   return (
-    <div className="flex flex-col  h-[calc(100vh-80px)] overflow-y-auto">
+    <div className="flex flex-col h-[calc(100vh-80px)] overflow-y-auto">
       <h1 className="text-xl font-medium mb-4">{name}</h1>
 
       <div className="flex gap-[24px]">
         {Array.isArray(columns) && columns.length > 0 ? (
           columns.map((column, columnIndex) => (
-            <div key={columnIndex} className="">
+            <div key={columnIndex}>
               <h2 className="font-semibold mb-4 text-lg">
                 {column.name} ({column.tasks?.length || 0})
               </h2>
@@ -38,12 +48,24 @@ export default function Pages({ selectedBoard }) {
         ) : (
           <div className="flex mt-[100px] justify-center items-center h-full flex justify-center text-center flex-col">
             <h1>This board is empty. Create a new column to get started.</h1>
-            <button className="bg-blue-500  text-white p-[10px] rounded-[30px]">
+            <button
+              onClick={handleAddNewColumn} // Handle button click
+              className="bg-blue-500 text-white p-[10px] rounded-[30px]"
+            >
               + Add New Column
             </button>
           </div>
         )}
       </div>
+
+      {/* Conditionally render the small div when showMessage is true */}
+      {/* {showMessage && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-[#fffff]">
+            <h1>hello</h1>
+          </div>
+        </div>
+      )} */}
     </div>
   );
 }
