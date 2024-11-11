@@ -101,11 +101,11 @@ export default function Header({ onSelectBoard }) {
 
       {showAddTaskForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-[#2B2C37] flex flex-col mt-[200px] gap-[30px] text-white p-[30px] w-[363px] h-[700px] rounded shadow-lg relative overflow-y-auto">
+          <div className="bg-[#ffffff] flex flex-col mt-[200px] gap-[30px] text-white p-[30px] w-[363px] h-[700px] rounded shadow-lg relative overflow-y-auto">
             {" "}
             {/* Add overflow-y-auto here */}
             <div className="flex items-center justify-between">
-              <h1 className="text-[20px]">Add New Task</h1>
+              <h1 className="text-[#080808] text-[20px]">Add New Task</h1>
               <img
                 className="cursor-pointer"
                 onClick={click}
@@ -114,7 +114,7 @@ export default function Header({ onSelectBoard }) {
               />
             </div>
             <div className="flex flex-col gap-[10px]">
-              <h1 className="text-[15px]">Title</h1>
+              <h1 className="text-[#080808] text-[15px]">Title</h1>
               <input
                 className="w-[295px] h-[40px] p-[10px] border bg-transparent border-[#828FA340]"
                 type="text"
@@ -122,7 +122,7 @@ export default function Header({ onSelectBoard }) {
               />
             </div>
             <div className="flex flex-col gap-[10px]">
-              <h1>Description</h1>
+              <h1 className="text-[#080808]">Description</h1>
               <textarea
                 className="bg-transparent w-[295px] h-[100px] p-[10px] border border-[#828FA340] placeholder-top"
                 placeholder="e.g. It’s always good to take a break. This 15-minute break will recharge the batteries a little."
@@ -130,7 +130,7 @@ export default function Header({ onSelectBoard }) {
               ></textarea>
             </div>
             <div className="flex flex-col gap-[10px]">
-              <h1>Subtasks</h1>
+              <h1 className="text-[#080808]">Subtasks</h1>
               <div className="flex  gap-[16px] items-center">
                 <input
                   className="border-[#828FA340]  w-[250px] p-[5px] border bg-transparent"
@@ -147,16 +147,12 @@ export default function Header({ onSelectBoard }) {
                 <img className="cursor-pointer" src={cross} alt="Remove" />
               </div>
             </div>
-            <button className="bg-[#ffff] cursor-pointer p-[10px] rounded-[30px]">
-              <h1 className="text-[#635FC7]">+ Add New Subtask</h1>
+            <button className="bg-[#635FC71A] cursor-pointer p-[10px] rounded-[30px]">
+              <h1 className=" text-[#635FC7]">+ Add New Subtask</h1>
             </button>
             <div>
               <h1>Status</h1>
-              <select className="w-[295px]  h-[50px ] bg-[#b4acac] p-[10px] border bg-transparent border-[#828FA340] text-white">
-                <option value="todo">To Do</option>
-                <option value="doing">Doing</option>
-                <option value="done">Done</option>
-              </select>
+              <select className="w-[295px]  h-[50px ] bg-[#b4acac] p-[10px] border bg-transparent border-[#828FA340] text-white"></select>
             </div>
             <button className="bg-[#1829db] cursor-pointer p-[10px] rounded-[30px]">
               Create Task
