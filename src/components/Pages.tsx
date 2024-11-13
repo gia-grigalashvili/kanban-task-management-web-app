@@ -23,7 +23,7 @@ type Board = {
 };
 
 type PagesProps = {
-  selectedBoard?: Board;
+  selectedBoard?: Board | undefined;
 };
 
 type CompletedCounts = {
@@ -36,6 +36,7 @@ type CompletedCounts = {
 export default function Pages({ selectedBoard }: PagesProps) {
   const [showMessage, setShowMessage] = useState<boolean>(false);
   const [completedCounts, setCompletedCounts] = useState<CompletedCounts>({});
+  const [showHiGia, setShowHiGia] = useState<boolean>(false); // New state for showing "Hi Gia" div
 
   useEffect(() => {
     if (selectedBoard && selectedBoard.columns) {
@@ -65,13 +66,19 @@ export default function Pages({ selectedBoard }: PagesProps) {
 
   const handleAddNewColumn = () => {
     setShowMessage(true);
+    setShowHiGia(false); // Hide "Hi Gia" modal when new column modal appears
+  };
+
+  const handleShowHiGia = () => {
+    setShowHiGia(true);
+    setShowMessage(false); // Hide new column modal when "Hi Gia" modal appears
   };
 
   return (
-    <div className="p-[20px] flex flex-col h-[calc(100vh-80px)] overflow-y-auto">
+    <div className="p-[20px] flex flex-col overflow-auto">
       <h1 className="text-xl font-medium mb-4">{name}</h1>
 
-      <div className="flex gap-[24px]">
+      <div className="flex h-[100%] gap-[24px]">
         {Array.isArray(columns) && columns.length > 0 ? (
           columns.map((column, columnIndex) => (
             <div key={columnIndex}>
@@ -89,7 +96,7 @@ export default function Pages({ selectedBoard }: PagesProps) {
                         : "#5a2d2d",
                   }}
                 ></div>
-                <h2 className="font-semibold  text-lg">
+                <h2 className="font-semibold text-lg">
                   {column.name} ({column.tasks?.length || 0})
                 </h2>
               </div>
@@ -134,28 +141,16 @@ export default function Pages({ selectedBoard }: PagesProps) {
             </button>
           </div>
         )}
-      </div>
 
-      {showMessage && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-[#FFFFFF] rounded w-[343px] p-[15px]">
-            <h1>Add New Board</h1>
-            <div className="flex flex-col gap-[10px]">
-              <h1 className="text-[15px]">Board Name</h1>
-              <input
-                className="w-[295px] h-[40px] p-[10px] border bg-transparent border-[#828FA340]"
-                type="text"
-              />
-            </div>
-            <div className="flex flex-col gap-[10px]">
-              <h1>Board Columns</h1>
-              <div>
-                <input type="text" />
-              </div>
-            </div>
-          </div>
+        <div className="p-[20px] flex rounded-[10px] justify-center items-center bg-green-200">
+          <button
+            onClick={handleShowHiGia}
+            className="text-[25px] text-[#828FA3]"
+          >
+            + New Column
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }
