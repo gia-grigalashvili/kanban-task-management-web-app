@@ -157,7 +157,7 @@ export default function Header({ onSelectBoard, boards, setBoards }) {
         >
           <div
             className="bg-white p-6 rounded-lg shadow-lg w-96"
-            onClick={(e) => e.stopPropagation()} // Prevent click from closing the modal
+            onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-bold mb-4">Create New Board</h2>
             <input
@@ -182,7 +182,7 @@ export default function Header({ onSelectBoard, boards, setBoards }) {
                 />
                 <button
                   onClick={() => handleRemoveColumn(index)}
-                  className="text-red-500"
+                  className="text-[20px] text-red-500"
                 >
                   X
                 </button>

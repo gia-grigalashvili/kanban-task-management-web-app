@@ -23,7 +23,9 @@ type Board = {
 };
 
 type PagesProps = {
-  selectedBoard?: Board | undefined;
+  selectedBoard?: Board;
+  boards: Board[]; // Add boards as a prop
+  setSelectedBoard?: (board: Board) => void;
 };
 
 type CompletedCounts = {
@@ -33,51 +35,73 @@ type CompletedCounts = {
   };
 };
 
-export default function Pages({ selectedBoard }: PagesProps) {
+export default function Pages({
+  selectedBoard,
+  boards,
+  setSelectedBoard,
+}: PagesProps) {
   const [showMessage, setShowMessage] = useState<boolean>(false);
   const [completedCounts, setCompletedCounts] = useState<CompletedCounts>({});
-  const [showHiGia, setShowHiGia] = useState<boolean>(false); // New state for showing "Hi Gia" div
-
+  const [showHiGia, setShowHiGia] = useState<boolean>(false);
+  const [columnsState, setColumnsState] = useState<string[]>([]);
+  const [newBoardName, setNewBoardName] = useState<string>("");
   useEffect(() => {
-    if (selectedBoard && selectedBoard.columns) {
-      const counts: CompletedCounts = {};
-
-      selectedBoard.columns.forEach((column, columnIndex) => {
-        column.tasks.forEach((task, taskIndex) => {
-          const completedSubtasks = task.subtasks.filter(
-            (subtask) => subtask.isCompleted
-          ).length;
-          counts[`${columnIndex}-${taskIndex}`] = {
-            completed: completedSubtasks,
-            total: task.subtasks.length,
-          };
-        });
-      });
-
-      setCompletedCounts(counts);
+    if (showHiGia && selectedBoard) {
+      setColumnsState(selectedBoard.columns.map((column) => column.name));
+      setNewBoardName(selectedBoard.name);
     }
-  }, [selectedBoard]);
-
+  }, [showHiGia, selectedBoard]);
+  const handleAddColumn = () => {
+    setColumnsState([...columnsState, ""]);
+  };
+  const handleDeleteColumn = (index: number) => {
+    const updatedColumns = columnsState.filter((_, i) => i !== index);
+    setColumnsState(updatedColumns);
+  };
   if (!selectedBoard) {
     return <div>Please select a board to see its columns.</div>;
   }
 
   const { name, columns } = selectedBoard;
 
-  const handleAddNewColumn = () => {
-    setShowMessage(true);
-    setShowHiGia(false); // Hide "Hi Gia" modal when new column modal appears
-  };
-
   const handleShowHiGia = () => {
     setShowHiGia(true);
-    setShowMessage(false); // Hide new column modal when "Hi Gia" modal appears
+    setShowMessage(false);
   };
+
+  const handleClothe = () => {
+    if (setSelectedBoard && selectedBoard) {
+      // Filter selectedBoard.columns to keep only columns present in columnsState
+      const updatedColumns = columnsState
+        .filter((name) => name.trim() !== "") // Filter out any empty column names
+        .map((name) => {
+          // Check if the column already exists and preserve its tasks
+          const existingColumn = selectedBoard.columns.find(
+            (col) => col.name === name
+          );
+          return {
+            name,
+            tasks: existingColumn ? existingColumn.tasks : [], // Preserve tasks if column exists
+          };
+        });
+
+      // Update the selected board with the new name and filtered columns
+      const updatedBoard = {
+        ...selectedBoard,
+        name: newBoardName.trim() || selectedBoard.name,
+        columns: updatedColumns,
+      };
+      setSelectedBoard(updatedBoard); // Save changes to the board
+    }
+    setShowHiGia(false);
+  };
+  if (!selectedBoard) {
+    return <div>Please select a board to see its columns.</div>;
+  }
 
   return (
     <div className="p-[20px] flex flex-col overflow-auto">
-      <h1 className="text-xl font-medium mb-4">{name}</h1>
-
+      <h1 className="text-xl font-medium mb-4">{selectedBoard.name}</h1>
       <div className="flex h-[100%] gap-[24px]">
         {Array.isArray(columns) && columns.length > 0 ? (
           columns.map((column, columnIndex) => (
@@ -134,7 +158,7 @@ export default function Pages({ selectedBoard }: PagesProps) {
           <div className="flex mt-[100px] justify-center items-center h-full flex-col">
             <h1>This board is empty. Create a new column to get started.</h1>
             <button
-              onClick={handleAddNewColumn}
+              onClick={handleShowHiGia}
               className="bg-blue-500 text-white p-[10px] rounded-[30px]"
             >
               + Add New Column
@@ -142,15 +166,73 @@ export default function Pages({ selectedBoard }: PagesProps) {
           </div>
         )}
 
-        <div className="p-[20px] flex rounded-[10px] justify-center items-center bg-green-200">
-          <button
-            onClick={handleShowHiGia}
-            className="text-[25px] text-[#828FA3]"
-          >
-            + New Column
-          </button>
-        </div>
+        {Array.isArray(columns) && columns.length > 0 && (
+          <div className="p-[20px] flex rounded-[10px] justify-center items-center bg-green-200">
+            <button
+              onClick={handleShowHiGia}
+              className="text-[25px] text-[#828FA3]"
+            >
+              + New Column
+            </button>
+          </div>
+        )}
       </div>
+      {showHiGia && (
+        <div className="fixed inset-0 flex justify-center items-center z-30 bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <div className="bg-[#2B2C37] p-[24px] max-w-[420px] w-[300px] gap-[15px] flex flex-col bg-gray-100 shadow-lg rounded-md max-h-[340px] overflow-y-auto">
+              <h1>Edit Board</h1>
+              <div>
+                <h1>Board Name</h1>
+                <input
+                  type="text"
+                  placeholder="Board Name"
+                  value={newBoardName}
+                  onChange={(e) => setNewBoardName(e.target.value)}
+                  className="p-2 border rounded w-full"
+                />
+              </div>
+              <div>
+                <h1>Board Columns</h1>
+                {columnsState.map((column, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={column}
+                      onChange={(e) => {
+                        const newColumns = [...columnsState];
+                        newColumns[index] = e.target.value;
+                        setColumnsState(newColumns);
+                      }}
+                      className="flex-1 p-2 border rounded"
+                    />
+                    <button
+                      onClick={() => handleDeleteColumn(index)}
+                      className="text-[20px] text-red-500"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={handleAddColumn}
+                className="bg-gray-200 text-sm px-2 py-1 rounded mt-2"
+              >
+                + Add New Column
+              </button>
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={handleClothe}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  clothe
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
