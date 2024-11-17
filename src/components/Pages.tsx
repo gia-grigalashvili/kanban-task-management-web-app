@@ -71,27 +71,24 @@ export default function Pages({
 
   const handleClothe = () => {
     if (setSelectedBoard && selectedBoard) {
-      // Filter selectedBoard.columns to keep only columns present in columnsState
       const updatedColumns = columnsState
-        .filter((name) => name.trim() !== "") // Filter out any empty column names
+        .filter((name) => name.trim() !== "")
         .map((name) => {
-          // Check if the column already exists and preserve its tasks
           const existingColumn = selectedBoard.columns.find(
             (col) => col.name === name
           );
           return {
             name,
-            tasks: existingColumn ? existingColumn.tasks : [], // Preserve tasks if column exists
+            tasks: existingColumn ? existingColumn.tasks : [],
           };
         });
 
-      // Update the selected board with the new name and filtered columns
       const updatedBoard = {
         ...selectedBoard,
         name: newBoardName.trim() || selectedBoard.name,
         columns: updatedColumns,
       };
-      setSelectedBoard(updatedBoard); // Save changes to the board
+      setSelectedBoard(updatedBoard);
     }
     setShowHiGia(false);
   };
