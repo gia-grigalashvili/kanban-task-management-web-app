@@ -45,6 +45,7 @@ export default function Pages({
   const [showHiGia, setShowHiGia] = useState<boolean>(false);
   const [columnsState, setColumnsState] = useState<string[]>([]);
   const [newBoardName, setNewBoardName] = useState<string>("");
+  const [edittex, setedittex] = useState<string>("");
   useEffect(() => {
     if (showHiGia && selectedBoard) {
       setColumnsState(selectedBoard.columns.map((column) => column.name));
@@ -71,6 +72,7 @@ export default function Pages({
 
   const handleClothe = () => {
     if (setSelectedBoard && selectedBoard) {
+      // Filter out empty column names and map updated names
       const updatedColumns = columnsState
         .filter((name) => name.trim() !== "")
         .map((name) => {
@@ -79,19 +81,25 @@ export default function Pages({
           );
           return {
             name,
-            tasks: existingColumn ? existingColumn.tasks : [],
+            tasks: existingColumn ? existingColumn.tasks : [], // Retain tasks for existing columns
           };
         });
 
+      // Update the board with the new name and columns
       const updatedBoard = {
         ...selectedBoard,
-        name: newBoardName.trim() || selectedBoard.name,
+        name: newBoardName.trim() || selectedBoard.name, // Use the typed name or keep the current name
         columns: updatedColumns,
       };
+
+      // Update the selected board
       setSelectedBoard(updatedBoard);
     }
+
+    // Close the modal
     setShowHiGia(false);
   };
+
   if (!selectedBoard) {
     return <div>Please select a board to see its columns.</div>;
   }
@@ -125,25 +133,21 @@ export default function Pages({
               <div className="mt-[20px]">
                 {Array.isArray(column.tasks) && column.tasks.length > 0 ? (
                   <ul className="flex flex-col gap-2">
-                    {column.tasks.map((task, taskIndex) => {
-                      const taskKey = `${columnIndex}-${taskIndex}`;
-                      const { completed, total } = completedCounts[taskKey] || {
-                        completed: 0,
-                        total: 0,
-                      };
-
-                      return (
-                        <li
-                          key={taskIndex}
-                          className="w-[280px] flex flex-col font-bold rounded-[8px] bg-[#FFFFFF] text-black p-[20px] shadow-md"
-                        >
-                          <p>{task.title}</p>
-                          <p className="text-sm text-gray-600">
-                            {completed} of {total} subtasks completed
-                          </p>
-                        </li>
-                      );
-                    })}
+                    {column.tasks.map((task, taskIndex) => (
+                      <li
+                        key={taskIndex}
+                        className="w-[280px] flex flex-col font-bold rounded-[8px] bg-[#FFFFFF] text-black p-[20px] shadow-md"
+                      >
+                        <p>{task.title}</p>
+                        <p className="text-sm text-gray-600">
+                          {
+                            task.subtasks.filter((sub) => sub.isCompleted)
+                              .length
+                          }{" "}
+                          of {task.subtasks.length} subtasks completed
+                        </p>
+                      </li>
+                    ))}
                   </ul>
                 ) : (
                   <p className="text-gray-500">No tasks available</p>
