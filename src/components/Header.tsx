@@ -1,91 +1,50 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Logo from "/public/assets/logo-mobile.svg";
 import Chevrondonw from "/public/assets/icon-chevron-down.svg";
 import plus from "/public/assets/icon-add-task-mobile.svg";
 import Verical from "/public/assets/icon-vertical-ellipsis.svg";
-import borad from "/public/assets/icon-board.svg";
-import cross from "/public/assets/icon-cross.svg";
-import data from "../data.json";
 
-export default function Header({ onSelectBoard, boards, setBoards }) {
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showAddTaskForm, setShowAddTaskForm] = useState(false);
-  const [showBoardForm, setShowBoardForm] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+export default function Header({ boards, setBoards }) {
+  const [showtasks, setShowtasks] = useState(false);
+  const [showNewBoardForm, setShowNewBoardForm] = useState(false);
+  const [newBoardName, setNewBoardName] = useState("");
+  const [newColumns, setNewColumns] = useState([{ name: "", tasks: [] }]);
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
 
-  const [boardName, setBoardName] = useState("");
-  const [columns, setColumns] = useState([""]);
-  const [errors, setErrors] = useState({ boardName: "", columns: [] });
+  const handleCreateBoard = () => {
+    const emptyColumns = newColumns.some((col) => !col.name.trim());
+    if (!newBoardName.trim() || emptyColumns) {
+      setError("Please fill in all fields before creating a new board.");
+      return;
+    }
+
+    const newBoard = {
+      name: newBoardName,
+      columns: newColumns.filter((col) => col.name),
+    };
+
+    setBoards((prevBoards) => [...prevBoards, newBoard]);
+    setShowNewBoardForm(false);
+    setShowtasks(true);
+    setNewBoardName("");
+    setNewColumns([{ name: "", tasks: [] }]);
+    setError("");
+  };
 
   const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
+    setShowtasks((prevState) => !prevState);
   };
 
-  const handleBoardClick = (index) => {
-    setSelectedIndex(index);
-    onSelectBoard(boards[index]);
-    setShowDropdown(false);
-  };
-
-  const addBoard = () => {
-    setShowBoardForm(true);
-    setShowDropdown(false);
-  };
-
-  const handleAddColumn = () => {
-    setColumns([...columns, ""]);
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      columns: [...prevErrors.columns, ""],
-    }));
-  };
-
-  const handleRemoveColumn = (index) => {
-    setColumns(columns.filter((_, i) => i !== index));
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      columns: prevErrors.columns.filter((_, i) => i !== index),
-    }));
+  const addNewColumn = () => {
+    setNewColumns([...newColumns, { name: "", tasks: [] }]);
   };
 
   const handleColumnChange = (index, value) => {
-    const newColumns = [...columns];
-    newColumns[index] = value;
-    setColumns(newColumns);
-
-    // Clear error if column input is filled
-    if (value.trim() !== "") {
-      const newErrors = [...errors.columns];
-      newErrors[index] = "";
-      setErrors((prevErrors) => ({ ...prevErrors, columns: newErrors }));
-    }
-  };
-
-  const handleCreateBoard = () => {
-    const columnErrors = columns.map((col) =>
-      col.trim() === "" ? "Column name is required" : ""
-    );
-    const boardNameError =
-      boardName.trim() === "" ? "Board name is required" : "";
-
-    setErrors({ boardName: boardNameError, columns: columnErrors });
-
-    if (boardNameError || columnErrors.some((err) => err)) return;
-
-    const newBoard = {
-      name: boardName,
-      columns: columns.map((name) => ({ name, tasks: [] })),
-    };
-    setBoards([...boards, newBoard]);
-    setShowBoardForm(false);
-    setBoardName("");
-    setColumns([""]);
-    setErrors({ boardName: "", columns: [] });
-    setShowDropdown(true);
-  };
-
-  const closeBoardForm = () => {
-    setShowBoardForm(false);
+    const updatedColumns = [...newColumns];
+    updatedColumns[index].name = value;
+    setNewColumns(updatedColumns);
   };
 
   return (
@@ -101,110 +60,110 @@ export default function Header({ onSelectBoard, boards, setBoards }) {
         </div>
 
         <div className="flex items-center gap-[15px]">
-          <div
-            onClick={() => setShowAddTaskForm((prevState) => !prevState)}
-            className="bg-[#635FC7] cursor-pointer w-[40px] h-[32px] flex justify-center items-center rounded-[10px]"
-          >
+          <div className="bg-[#635FC7] cursor-pointer w-[40px] h-[32px] flex justify-center items-center rounded-[10px]">
             <img src={plus} alt="Add Task" />
           </div>
           <img src={Verical} alt="Menu" />
         </div>
       </div>
 
-      {showDropdown && (
-        <>
-          <div
-            onClick={toggleDropdown}
-            className="fixed inset-0 bg-black bg-opacity-50 z-10"
-          ></div>
-          <div className="fixed inset-0 flex justify-center mt-[100px] z-20">
-            <div className="bg-[#2B2C37] w-[270px] gap-[15px] flex flex-col bg-gray-100 shadow-lg rounded-md max-h-[340px] overflow-y-auto">
-              <h1 className="mt-[10px] ml-[20px]">
-                ALL BOARDS ({boards.length})
-              </h1>
-              {boards.map((board, index) => (
-                <div
-                  key={index}
-                  onClick={() => handleBoardClick(index)}
-                  className={`flex w-[220px] h-[48px] hover:bg-[#635FC7] rounded-br-[20px] rounded-tr-[20px] font-bold text-[15px] gap-[10px] items-center p-[20px] cursor-pointer ${
-                    selectedIndex === index
-                      ? "bg-[#635FC7] text-white"
-                      : "bg-[#ffffff] text-gray-800"
-                  }`}
-                >
-                  <img src={borad} alt="Board Icon" />
-                  <h1>{board.name}</h1>
-                </div>
-              ))}
-              <div
-                onClick={addBoard}
-                className="flex w-[220px] h-[48px] rounded-br-[20px] rounded-tr-[20px] font-bold text-[15px] gap-[10px] items-center p-[20px] cursor-pointer text-gray-800 hover:bg-[#635FC7] hover:text-white"
-              >
-                <img src={borad} alt="Board Icon" />
-                <h1 className="hover:text-[#ffffff] text-[#635FC7]">
-                  + Create New Board
-                </h1>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {showBoardForm && (
+      {showtasks && !showNewBoardForm && (
         <div
-          className="fixed inset-0 flex justify-center items-center z-30 bg-black bg-opacity-50"
-          onClick={closeBoardForm}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50"
+          onClick={() => setShowtasks(false)}
         >
           <div
-            className="bg-white p-6 rounded-lg shadow-lg w-96"
+            className="absolute left-1/2 top-20 transform -translate-x-1/2 bg-white border rounded shadow-lg w-[90%] max-h-[400px] overflow-y-auto z-50"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg font-bold mb-4">Create New Board</h2>
-            <input
-              type="text"
-              value={boardName}
-              onChange={(e) => setBoardName(e.target.value)}
-              placeholder="Board Name"
-              className="w-full p-2 border rounded mb-2"
-            />
-            {errors.boardName && (
-              <p className="text-red-500 text-sm">{errors.boardName}</p>
-            )}
-            <h3 className="mt-4 mb-2 font-semibold">Board Columns</h3>
-            {columns.map((column, index) => (
-              <div key={index} className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={column}
-                  onChange={(e) => handleColumnChange(index, e.target.value)}
-                  placeholder="Column Name"
-                  className="flex-1 p-2 border rounded"
-                />
-                <button
-                  onClick={() => handleRemoveColumn(index)}
-                  className="text-[20px] text-red-500"
+            <h2 className="p-2 text-lg font-bold text-gray-800 border-b">
+              Data Names
+            </h2>
+            <ul>
+              {boards.map((item, index) => (
+                <li
+                  key={index}
+                  onClick={() => {
+                    setShowtasks(false);
+                    navigate(`/board/${item.name}`);
+                  }}
+                  className="p-2 hover:bg-gray-100 cursor-pointer text-gray-800"
                 >
-                  X
-                </button>
-                {errors.columns[index] && (
-                  <p className="text-red-500 text-sm">
-                    {errors.columns[index]}
-                  </p>
-                )}
-              </div>
-            ))}
+                  {item.name}
+                </li>
+              ))}
+            </ul>
             <button
-              onClick={handleAddColumn}
-              className="bg-gray-200 text-sm px-2 py-1 rounded mt-2"
+              onClick={() => {
+                setShowtasks(false);
+                setShowNewBoardForm(true);
+              }}
+              className="w-full p-2 text-center bg-blue-500 text-white rounded mt-2"
             >
-              + Add New Column
+              + Create New Board
             </button>
-            <div className="flex justify-end mt-4">
+          </div>
+        </div>
+      )}
+
+      {showNewBoardForm && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50"
+          onClick={() => setShowNewBoardForm(false)}
+        >
+          <div
+            className="absolute left-1/2 top-20 transform -translate-x-1/2 bg-white border rounded shadow-lg w-[90%] max-h-[500px] overflow-y-auto z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="p-2 text-lg font-bold text-gray-800 border-b">
+              Add New Board
+            </h2>
+            <div className="p-4">
+              <label className="block text-gray-800 font-semibold mb-2">
+                Board Name
+              </label>
+              <input
+                type="text"
+                value={newBoardName}
+                onChange={(e) => setNewBoardName(e.target.value)}
+                className="w-full p-2 border rounded mb-4"
+              />
+              <label className="block text-gray-800 font-semibold mb-2">
+                Board Columns
+              </label>
+              {newColumns.map((column, index) => (
+                <div key={index} className="flex items-center gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={column.name}
+                    onChange={(e) => handleColumnChange(index, e.target.value)}
+                    className="w-full p-2 border rounded"
+                  />
+                  <button
+                    onClick={() => {
+                      const updatedColumns = newColumns.filter(
+                        (_, colIndex) => colIndex !== index
+                      );
+                      setNewColumns(updatedColumns);
+                    }}
+                    className="p-2 bg-red-500 text-white rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={addNewColumn}
+                className="w-full p-2 text-center bg-gray-200 text-black rounded mb-4"
+              >
+                + Add Column
+              </button>
+              {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
               <button
                 onClick={handleCreateBoard}
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                className="w-full p-2 text-center bg-blue-500 text-white rounded"
               >
-                Create
+                Create New Board
               </button>
             </div>
           </div>
