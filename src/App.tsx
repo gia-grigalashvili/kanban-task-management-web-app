@@ -26,8 +26,8 @@ export default function App() {
           {boards.map((board, index) => (
             <Route
               key={index}
-              path={`/board/:boardName`}
-              element={<Pages boards={boards} columns={board.columns} />}
+              path={`/board/${board.name}`}
+              element={<Pages boardName={board.name} columns={board.columns} />}
             />
           ))}
           <Route path="*" element={<Navigate to="/" />} />
