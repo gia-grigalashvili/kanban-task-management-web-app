@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Logo from "/public/assets/logo-mobile.svg";
 import Chevrondonw from "/public/assets/icon-chevron-down.svg";
 import plus from "/public/assets/icon-add-task-mobile.svg";
@@ -10,7 +10,7 @@ export default function Header({ boards, setBoards }) {
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
   const [newColumns, setNewColumns] = useState([{ name: "", tasks: [] }]);
-  const navigate = useNavigate();
+
   const [error, setError] = useState("");
 
   const handleCreateBoard = () => {
@@ -79,18 +79,18 @@ export default function Header({ boards, setBoards }) {
             <h2 className="p-2 text-lg font-bold text-gray-800 border-b">
               Data Names
             </h2>
-            <ul>
+            <ul className="flex  flex-col ">
               {boards.map((item, index) => (
-                <li
+                <Link
+                  to={item.name}
                   key={index}
                   onClick={() => {
                     setShowtasks(false);
-                    navigate(`/board/${item.name}`);
                   }}
                   className="p-2 hover:bg-gray-100 cursor-pointer text-gray-800"
                 >
                   {item.name}
-                </li>
+                </Link>
               ))}
             </ul>
             <button

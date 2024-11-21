@@ -1,61 +1,92 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router";
+import { useNavigate } from "react-router";
 
-export default function Pages({ boardName, columns }) {
-  const [currentBoardName, setCurrentBoardName] = useState(boardName || "");
-  const [currentColumns, setCurrentColumns] = useState(columns || []);
+export default function Pages({ boards, setBoards }) {
   const [showModal, setShowModal] = useState(false);
-  const [newBoardName, setNewBoardName] = useState(currentBoardName);
-  const [newColumns, setNewColumns] = useState([...currentColumns]);
+  const [newBoardName, setNewBoardName] = useState("");
+  const [, setNewColumns] = useState([]);
+  const [editedColumns, setEditedColumns] = useState([]);
+
+  const boardname = useParams().boardname;
+  const activeBoard = boards.find((board) => board.name === boardname);
+
+  useEffect(() => {
+    if (activeBoard) {
+      setNewBoardName(activeBoard.name || "");
+      setNewColumns(activeBoard?.columns || []);
+      setEditedColumns(activeBoard?.columns.map((column) => ({ ...column })));
+    }
+  }, [activeBoard]);
 
   const toggleModal = () => {
-    setNewBoardName(currentBoardName);
-    setNewColumns([...currentColumns]);
     setShowModal(!showModal);
   };
 
-  const handleColumnChange = (index, value) => {
-    const updatedColumns = [...newColumns];
-    updatedColumns[index].name = value;
-    setNewColumns(updatedColumns);
-  };
-
   const addNewColumn = () => {
-    setNewColumns([...newColumns, { name: "", tasks: [] }]);
+    setEditedColumns([...editedColumns, { name: "", color: "", tasks: [] }]);
   };
 
   const deleteColumn = (index) => {
-    const updatedColumns = newColumns.filter((_, i) => i !== index);
-    setNewColumns(updatedColumns);
+    const updatedColumns = editedColumns.filter((_, i) => i !== index);
+    setEditedColumns(updatedColumns);
   };
 
+  const navigate = useNavigate();
   const handleSave = () => {
-    setCurrentBoardName(newBoardName);
-    setCurrentColumns(newColumns);
+    const updatedColumns = editedColumns.map((column, index) => ({
+      ...column,
+      name: column.name.trim(),
+      color: column.color || getRandomColor(index),
+    }));
+
+    const updatedBoard = {
+      ...activeBoard,
+      name: newBoardName,
+      columns: updatedColumns,
+    };
+
+    const updatedBoards = boards.map((board) =>
+      board.name === activeBoard.name ? updatedBoard : board
+    );
+
+    setBoards(updatedBoards);
+    navigate(`/${newBoardName}`);
     toggleModal();
+  };
+
+  const handleColumnNameChange = (index, value) => {
+    const updatedColumns = [...editedColumns];
+    updatedColumns[index].name = value;
+    setEditedColumns(updatedColumns);
+  };
+
+  // Function to return random color
+  const getRandomColor = (index) => {
+    const predefinedColors = ["#49C4E5", "#67E2AE", "#8471F2"];
+    if (index < 3) {
+      return predefinedColors[index];
+    }
+
+    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    return randomColor;
   };
 
   return (
     <div className="flex">
       <div className="p-[20px] flex flex-col overflow-auto">
-        <h1 className="text-xl font-medium mb-4">
-          {currentBoardName || "Board not found"}
-        </h1>
+        <h2>{activeBoard.name}</h2>
         <div className="flex h-[100%] gap-[24px]">
-          {Array.isArray(currentColumns) && currentColumns.length > 0 ? (
-            currentColumns.map((column, columnIndex) => (
+          {Array.isArray(activeBoard?.columns) &&
+          activeBoard?.columns.length > 0 ? (
+            activeBoard.columns.map((column, columnIndex) => (
               <div key={columnIndex}>
                 <div className="flex gap-[20px] justify-center items-center">
                   <div
                     className="w-[15px] h-[15px] rounded-[50%]"
                     style={{
                       backgroundColor:
-                        column.name.toLowerCase() === "todo"
-                          ? "#49C4E5"
-                          : column.name.toLowerCase() === "done"
-                          ? "#67E2AE"
-                          : column.name.toLowerCase() === "doing"
-                          ? "#8471F2"
-                          : "#5a2d2d",
+                        column.color || getRandomColor(columnIndex),
                     }}
                   ></div>
                   <h2 className="font-semibold text-lg">
@@ -99,7 +130,7 @@ export default function Pages({ boardName, columns }) {
           onClick={toggleModal}
           className="bg-blue-500 text-white p-2 rounded"
         >
-          Add/Edit Board
+          Edit Board
         </button>
       </div>
 
@@ -118,12 +149,14 @@ export default function Pages({ boardName, columns }) {
             </div>
             <div>
               <h2 className="text-gray-700 mb-2">Board Columns:</h2>
-              {newColumns.map((column, index) => (
+              {editedColumns.map((column, index) => (
                 <div key={index} className="flex items-center gap-2 mb-2">
                   <input
                     type="text"
                     value={column.name}
-                    onChange={(e) => handleColumnChange(index, e.target.value)}
+                    onChange={(e) =>
+                      handleColumnNameChange(index, e.target.value)
+                    }
                     className="border rounded w-full p-2"
                     placeholder="Enter column name"
                   />
