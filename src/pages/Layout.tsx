@@ -1,4 +1,4 @@
-import { Outlet, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useState } from "react";
 import Header from "../components/Header";
 import Pages from "../components/Pages";

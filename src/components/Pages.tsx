@@ -1,38 +1,65 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router";
-import { useNavigate } from "react-router";
+import React, { useState, useEffect, ReactNode } from "react";
+import { useParams, useNavigate } from "react-router";
 
-export default function Pages({ boards, setBoards }) {
+type Column = {
+  name: string;
+  color: string;
+  tasks: {
+    title: string;
+    subtasks: {
+      title: ReactNode;
+      isCompleted: boolean;
+      text: string;
+    }[];
+  }[];
+};
+
+type Board = {
+  name: string;
+  columns: Column[];
+};
+
+interface PagesProps {
+  boards: Board[];
+  setBoards: React.Dispatch<React.SetStateAction<Board[]>>;
+}
+
+export default function Pages({ boards, setBoards }: PagesProps) {
   const [showModal, setShowModal] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
-  const [, setNewColumns] = useState([]);
-  const [editedColumns, setEditedColumns] = useState([]);
+  const [editedColumns, setEditedColumns] = useState<Column[]>([]);
+  const [activeTask, setActiveTask] = useState<{
+    columnIndex: number;
+    taskIndex: number;
+  } | null>(null);
 
-  const boardname = useParams().boardname;
-  const activeBoard = boards.find((board) => board.name === boardname);
+  const { boardname } = useParams();
+  const navigate = useNavigate();
+
+  const activeBoard = boards.find(
+    (board: { name: string | undefined }) => board.name === boardname
+  );
 
   useEffect(() => {
     if (activeBoard) {
       setNewBoardName(activeBoard.name || "");
-      setNewColumns(activeBoard?.columns || []);
-      setEditedColumns(activeBoard?.columns.map((column) => ({ ...column })));
+      setEditedColumns(
+        activeBoard?.columns.map((column) => ({ ...column })) || []
+      );
     }
   }, [activeBoard]);
 
-  const toggleModal = () => {
-    setShowModal(!showModal);
-  };
+  const toggleModal = () => setShowModal(!showModal);
 
   const addNewColumn = () => {
     setEditedColumns([...editedColumns, { name: "", color: "", tasks: [] }]);
   };
 
-  const deleteColumn = (index) => {
+  const deleteColumn = (index: number) => {
     const updatedColumns = editedColumns.filter((_, i) => i !== index);
     setEditedColumns(updatedColumns);
   };
 
-  const navigate = useNavigate();
   const handleSave = () => {
     const updatedColumns = editedColumns.map((column, index) => ({
       ...column,
@@ -42,46 +69,60 @@ export default function Pages({ boards, setBoards }) {
 
     const updatedBoard = {
       ...activeBoard,
-      name: newBoardName,
+      name: newBoardName.trim(),
       columns: updatedColumns,
     };
-
+    if (!activeBoard) {
+      return;
+    }
     const updatedBoards = boards.map((board) =>
       board.name === activeBoard.name ? updatedBoard : board
     );
-
     setBoards(updatedBoards);
     navigate(`/${newBoardName}`);
     toggleModal();
   };
 
-  const handleColumnNameChange = (index, value) => {
+  const handleColumnNameChange = (index: number, value: string): void => {
     const updatedColumns = [...editedColumns];
     updatedColumns[index].name = value;
     setEditedColumns(updatedColumns);
   };
 
-  // Function to return random color
-  const getRandomColor = (index) => {
+  const getRandomColor = (index: number): string => {
     const predefinedColors = ["#49C4E5", "#67E2AE", "#8471F2"];
-    if (index < 3) {
-      return predefinedColors[index];
-    }
+    return (
+      predefinedColors[index] ||
+      `#${Math.floor(Math.random() * 16777215).toString(16)}`
+    );
+  };
 
-    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    return randomColor;
+  const handleTaskClick = (columnIndex: number, taskIndex: number) => {
+    setActiveTask({ columnIndex, taskIndex });
+  };
+
+  const toggleSubtaskCompletion = (subtaskIndex: number) => {
+    if (activeTask) {
+      const { columnIndex, taskIndex } = activeTask;
+      const updatedColumns = [...editedColumns];
+      const updatedTask = { ...updatedColumns[columnIndex].tasks[taskIndex] };
+      updatedTask.subtasks[subtaskIndex].isCompleted =
+        !updatedTask.subtasks[subtaskIndex].isCompleted;
+      updatedColumns[columnIndex].tasks[taskIndex] = updatedTask;
+      setEditedColumns(updatedColumns);
+    }
   };
 
   return (
     <div className="flex">
       <div className="p-[20px] flex flex-col overflow-auto">
-        <h2>{activeBoard.name}</h2>
-        <div className="flex h-[100%] gap-[24px]">
+        <h2>{activeBoard?.name || "Board Not Found"}</h2>
+        <div className="flex gap-[24px]">
           {Array.isArray(activeBoard?.columns) &&
-          activeBoard?.columns.length > 0 ? (
-            activeBoard.columns.map((column, columnIndex) => (
-              <div key={columnIndex}>
-                <div className="flex gap-[20px] justify-center items-center">
+          activeBoard.columns.length > 0 ? (
+            activeBoard?.columns.map((column: Column, columnIndex: number) => (
+              <div key={columnIndex} className="column">
+                <div className="flex items-center gap-[20px]">
                   <div
                     className="w-[15px] h-[15px] rounded-[50%]"
                     style={{
@@ -93,16 +134,18 @@ export default function Pages({ boards, setBoards }) {
                     {column.name} ({column.tasks?.length || 0})
                   </h2>
                 </div>
-
-                <div className="mt-[20px]">
+                <div className="tasks mt-[20px]">
                   {Array.isArray(column.tasks) && column.tasks.length > 0 ? (
                     <ul className="flex flex-col gap-2">
                       {column.tasks.map((task, taskIndex) => (
                         <li
                           key={taskIndex}
-                          className="w-[280px] flex flex-col font-bold rounded-[8px] bg-[#FFFFFF] text-black p-[20px] shadow-md"
+                          className="task bg-white shadow-md p-[20px]"
+                          onClick={() =>
+                            handleTaskClick(columnIndex, taskIndex)
+                          }
                         >
-                          <p>{task.title}</p>
+                          <p className="font-bold">{task.title}</p>
                           <p className="text-sm text-gray-600">
                             {
                               task.subtasks.filter((sub) => sub.isCompleted)
@@ -125,18 +168,18 @@ export default function Pages({ boards, setBoards }) {
         </div>
       </div>
 
-      <div>
+      <div className="w-auto p-[20px] rounded-[4px] flex items-center bg-[#dadada4b]">
         <button
           onClick={toggleModal}
-          className="bg-blue-500 text-white p-2 rounded"
+          className=" font-extrabold text-[#808080] p-2 text-[20px] rounded"
         >
-          Edit Board
+          + New column
         </button>
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white border rounded shadow-lg w-[400px] p-6">
+        <div className="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="modal-content bg-white p-6 rounded shadow-lg w-[400px]">
             <h1 className="text-lg font-bold mb-4">Edit Board</h1>
             <div className="mb-4">
               <label className="block text-gray-700">Board Name:</label>
@@ -189,6 +232,64 @@ export default function Pages({ boards, setBoards }) {
                 Save
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeTask && (
+        <div
+          onClick={() => setActiveTask(null)}
+          className="task-details fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white p-6 rounded shadow-lg w-[400px]"
+          >
+            <h2 className="font-bold text-xl">
+              {
+                activeBoard?.columns[activeTask.columnIndex].tasks[
+                  activeTask.taskIndex
+                ].title
+              }
+            </h2>
+            <ul className="mt-[20px] flex flex-col gap-[10px]">
+              <p className="text-sm text-gray-600">
+                {
+                  activeBoard?.columns[activeTask.columnIndex].tasks[
+                    activeTask.taskIndex
+                  ].subtasks.filter((sub) => sub.isCompleted).length
+                }{" "}
+                of{" "}
+                {
+                  activeBoard?.columns[activeTask.columnIndex].tasks[
+                    activeTask.taskIndex
+                  ].subtasks.length
+                }{" "}
+                subtasks completed
+              </p>
+
+              {activeBoard?.columns[activeTask.columnIndex].tasks[
+                activeTask.taskIndex
+              ].subtasks.map((subtask, subtaskIndex) => (
+                <ul className="flex bg-[#b3b3b3] flex-col p-[10px] rounded-[3px]">
+                  <li
+                    key={subtaskIndex}
+                    className={`subtask flex  items-center gap-2 ${
+                      subtask.isCompleted ? "text-green-500" : "text-[#fc0000]"
+                    }`}
+                  >
+                    <div className=" flex  gap-[20px]  ">
+                      <input
+                        type="checkbox"
+                        checked={subtask.isCompleted}
+                        onChange={() => toggleSubtaskCompletion(subtaskIndex)}
+                      />
+                      <h1 className="text-[17px]">{subtask.title}</h1>
+                    </div>
+                  </li>
+                </ul>
+              ))}
+            </ul>
           </div>
         </div>
       )}
