@@ -4,7 +4,7 @@ import Logo from "/public/assets/logo-mobile.svg";
 import Chevrondonw from "/public/assets/icon-chevron-down.svg";
 import plus from "/public/assets/icon-add-task-mobile.svg";
 import Verical from "/public/assets/icon-vertical-ellipsis.svg";
-
+import boardig from "/public/assets/icon-board.svg";
 export default function Header({ boards, setBoards }) {
   const [showtasks, setShowtasks] = useState(false);
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
@@ -89,7 +89,11 @@ export default function Header({ boards, setBoards }) {
                   }}
                   className="p-2 hover:bg-gray-100 cursor-pointer text-gray-800"
                 >
-                  {item.name}
+                  <div className="flex  gap-[10px] items-center">
+                    {" "}
+                    <img src={boardig} alt="" />
+                    {item.name}
+                  </div>
                 </Link>
               ))}
             </ul>
