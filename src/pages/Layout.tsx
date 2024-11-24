@@ -12,10 +12,14 @@ export default function Layout() {
 
   return (
     <div>
-      <Header boards={boards} setBoards={setBoards} />
+      <Header activeBoard={activeBoard} boards={boards} setBoards={setBoards} />
       <main>
         {activeBoard ? (
-          <Pages setBoards={setBoards} boards={boards} />
+          <Pages
+            activeBoard={activeBoard}
+            setBoards={setBoards}
+            boards={boards}
+          />
         ) : (
           <h1 className="p-8 text-center">Please choose a platform</h1>
         )}

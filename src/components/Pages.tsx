@@ -24,7 +24,7 @@ interface PagesProps {
   setBoards: React.Dispatch<React.SetStateAction<Board[]>>;
 }
 
-export default function Pages({ boards, setBoards }: PagesProps) {
+export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
   const [showModal, setShowModal] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
   const [editedColumns, setEditedColumns] = useState<Column[]>([]);
@@ -33,12 +33,11 @@ export default function Pages({ boards, setBoards }: PagesProps) {
     taskIndex: number;
   } | null>(null);
 
-  const { boardname } = useParams();
   const navigate = useNavigate();
 
-  const activeBoard = boards.find(
-    (board: { name: string | undefined }) => board.name === boardname
-  );
+  // const activeBoard = boards.find(
+  //   (board: { name: string | undefined }) => board.name === boardname
+  // );
 
   useEffect(() => {
     if (activeBoard) {
@@ -285,12 +284,6 @@ export default function Pages({ boards, setBoards }: PagesProps) {
                     updatedColumns[newColumnIndex].tasks.push(taskToMove);
 
                     setEditedColumns(updatedColumns);
-                    setActiveTask({
-                      ...activeTask,
-                      columnIndex: newColumnIndex,
-                      taskIndex:
-                        updatedColumns[newColumnIndex].tasks.length - 1,
-                    });
                   }
                 }}
               >
