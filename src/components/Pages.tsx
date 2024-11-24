@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactNode } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 type Column = {
   name: string;
@@ -18,9 +18,13 @@ type Board = {
   name: string;
   columns: Column[];
 };
-
+interface Subtask {
+  isCompleted: boolean;
+  // Add other properties of the subtask here, if needed
+}
 interface PagesProps {
-  boards: Board[];
+  boards: Board[]; // An array of `Board` objects
+  activeBoard: Board | null; // `activeBoard` can be `null` if no board is selected
   setBoards: React.Dispatch<React.SetStateAction<Board[]>>;
 }
 
@@ -35,15 +39,11 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
 
   const navigate = useNavigate();
 
-  // const activeBoard = boards.find(
-  //   (board: { name: string | undefined }) => board.name === boardname
-  // );
-
   useEffect(() => {
     if (activeBoard) {
       setNewBoardName(activeBoard.name || "");
       setEditedColumns(
-        activeBoard?.columns.map((column) => ({ ...column })) || []
+        activeBoard?.columns.map((column: Column) => ({ ...column })) || []
       );
     }
   }, [activeBoard]);
@@ -123,7 +123,7 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
               activeBoard?.columns.map(
                 (column: Column, columnIndex: number) => (
                   <div key={columnIndex} className="column">
-                    <div className="flex items-center w-[200px]  gap-[20px]">
+                    <div className="flex items-center  w-[200px]  gap-[20px]">
                       <div
                         className="w-[15px] h-[15px] rounded-[50%]"
                         style={{
@@ -142,7 +142,7 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
                           {column.tasks.map((task, taskIndex) => (
                             <li
                               key={taskIndex}
-                              className="task w-[250px] rounded-[5px] bg-white shadow-md p-[20px]"
+                              className="task w-[250px] bg-white shadow-md p-[20px] rounded-[5px] cursor-pointer hover:bg-[#4d01c9c6] "
                               onClick={() =>
                                 handleTaskClick(columnIndex, taskIndex)
                               }
@@ -287,7 +287,7 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
                   }
                 }}
               >
-                {activeBoard?.columns.map((column, index) => (
+                {activeBoard?.columns.map((column: Column, index: number) => (
                   <option key={index} value={index}>
                     {column.name}
                   </option>
@@ -300,7 +300,7 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
                 {
                   activeBoard?.columns[activeTask.columnIndex].tasks[
                     activeTask.taskIndex
-                  ].subtasks.filter((sub) => sub.isCompleted).length
+                  ].subtasks.filter((sub: Subtask) => sub.isCompleted).length
                 }{" "}
                 of{" "}
                 {
