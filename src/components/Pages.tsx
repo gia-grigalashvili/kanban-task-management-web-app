@@ -120,10 +120,10 @@ export default function Pages({
   };
 
   return (
-    <div className="flex">
+    <div className="flex ">
       <div className="p-[20px] flex  gap-[30px] overflow-auto">
         <div className="flex  flex-col gap-[20px]">
-          <h2 className=" font-bold text-lg text-gray-800 ">
+          <h2 className="  text-[#131212]    dark:text-white font-bold text-lg text-gray-800 ">
             {activeBoard?.name || "Board Not Found"}
           </h2>
           <div className="flex gap-[24px]">
@@ -140,7 +140,7 @@ export default function Pages({
                             column.color || getRandomColor(columnIndex),
                         }}
                       ></div>
-                      <h2 className="font-semibold text-lg">
+                      <h2 className="font-semibold  text-[#2b2c37] dark:text-white  text-lg">
                         {column.name} ({column.tasks?.length || 0})
                       </h2>
                     </div>
@@ -151,13 +151,15 @@ export default function Pages({
                           {column.tasks.map((task, taskIndex) => (
                             <li
                               key={taskIndex}
-                              className="task w-[250px] bg-white shadow-md sm:w-[300px] p-[20px] rounded-[5px] cursor-pointer hover:bg-[#4d01c9c6] "
+                              className="task w-[250px] bg-white  shadow-md sm:w-[300px] p-[20px] rounded-[5px] cursor-pointer hover:bg-[#4d01c9c6]  dark:hover:bg-[#4d01c9c6] dark:bg-[#2b2c37] "
                               onClick={() =>
                                 handleTaskClick(columnIndex, taskIndex)
                               }
                             >
-                              <p className="font-bold">{task.title}</p>
-                              <p className="text-sm text-gray-600">
+                              <p className="font-bold text-[#2b2c37] dark:text-white">
+                                {task.title}
+                              </p>
+                              <p className="text-sm text-[#2b2c37] dark:text-white ">
                                 {
                                   task.subtasks.filter((sub) => sub.isCompleted)
                                     .length
@@ -180,7 +182,7 @@ export default function Pages({
           </div>
         </div>
 
-        <div className="w-auto p-[20px] rounded-[4px] flex items-center bg-[#dadada4b]">
+        <div className="w-auto  dark:bg-[#303030] p-[20px] rounded-[4px] flex items-center bg-[#dadada4b]">
           <button
             onClick={toggleModal}
             className=" font-extrabold text-[#808080] p-2 text-[20px] rounded"
@@ -191,15 +193,17 @@ export default function Pages({
       </div>
       {showModal && (
         <div className="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className=" modal-content bg-white p-6 rounded shadow-lg  sm:w-[500px] w-[350px]">
-            <h1 className="text-lg font-bold mb-4">Edit Board</h1>
+          <div className=" modal-content bg-white dark:bg-[#2b2c37] bg-white p-6 rounded shadow-lg  rounded-[10px] sm:w-[500px] w-[350px]">
+            <h1 className="text-lg font-bold text-[#2b2c37] dark:text-white mb-4">
+              Edit Board
+            </h1>
             <div className="mb-4">
               <label className="block text-gray-700">Board Name:</label>
               <input
                 type="text"
                 value={newBoardName}
                 onChange={(e) => setNewBoardName(e.target.value)}
-                className="border rounded w-full p-2"
+                className="bg-white dark:bg-[#2b2c37] text-[#2b2c37] dark:text-white border rounded w-full p-2"
               />
             </div>
             <div>
@@ -212,7 +216,7 @@ export default function Pages({
                     onChange={(e) =>
                       handleColumnNameChange(index, e.target.value)
                     }
-                    className="border rounded w-full p-2"
+                    className="border bg-white dark:bg-[#2b2c37] text-[#2b2c37] dark:text-white rounded w-full p-2"
                     placeholder="Enter column name"
                   />
                   <button
@@ -255,17 +259,17 @@ export default function Pages({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white p-6 rounded shadow-lg  sm:w-[500px]   w-[350px]"
+            className="bg-white p-6 rounded shadow-lg  bg-white dark:bg-[#2b2c37]  sm:w-[500px]   w-[350px]"
           >
-            <h2 className="font-bold text-xl">
-              Task:{" "}
+            <h2 className="font-bold text-[#2b2c37] dark:text-white text-xl">
+              {" "}
               {
                 activeBoard?.columns[activeTask.columnIndex].tasks[
                   activeTask.taskIndex
                 ].title
               }
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 text-[#2b2c37] dark:text-white mb-4">
               Current Column:{" "}
               {activeBoard?.columns[activeTask.columnIndex].name}
             </p>
@@ -279,7 +283,7 @@ export default function Pages({
                 Move Task to:
               </label>
               <select
-                className="border rounded w-full p-2"
+                className="border  bg-white dark:bg-[#2b2c37]  text-[#2b2c37] dark:text-white rounded w-full p-2"
                 value={activeTask.columnIndex}
                 onChange={(e) => {
                   const newColumnIndex = parseInt(e.target.value, 10);

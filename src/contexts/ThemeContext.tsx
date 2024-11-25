@@ -1,4 +1,4 @@
-import React, {
+import {
   useContext,
   createContext,
   useState,
@@ -6,7 +6,7 @@ import React, {
   useEffect,
 } from "react";
 
-type Theme = "light" | "dark"; // Fixed typo in "ligh"
+type Theme = "light" | "dark";
 type TThemeContext = {
   theme: Theme;
   toggleTheme: () => void;
@@ -23,11 +23,19 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
+
   useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+
     if (theme === "dark") {
-      document.documentElement.classList.add("dark");
+      root.classList.add("dark");
+      body.style.backgroundColor = "#1e1e2f"; // Dark background
+      body.style.color = "#ffffff"; // Light text
     } else {
-      document.documentElement.classList.remove("dark");
+      root.classList.remove("dark");
+      body.style.backgroundColor = "#ffffff"; // Light background
+      body.style.color = "#000000"; // Dark text
     }
   }, [theme]);
 
@@ -38,6 +46,7 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {

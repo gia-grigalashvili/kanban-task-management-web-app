@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useState } from "react";
-import { useTheme } from "../contexts/ThemeContext"; // Make sure you import useTheme
+// Make sure you import useTheme
 import Header from "../components/Header";
 import Pages from "../components/Pages";
 import data from "../data.json";
@@ -9,18 +9,13 @@ import ThemeProvider from "../contexts/ThemeContext";
 
 export default function Layout() {
   const [boards, setBoards] = useState(data.boards);
-  const { theme, toggleTheme } = useTheme();
+
   const boardname = useParams().boardname;
   const activeBoard = boards.find((board) => board.name === boardname) || null;
 
   return (
     <ThemeProvider>
-      <Header
-        toggleTheme={toggleTheme}
-        activeBoard={activeBoard}
-        boards={boards}
-        setBoards={setBoards}
-      />
+      <Header activeBoard={activeBoard} boards={boards} setBoards={setBoards} />
 
       <main>
         {activeBoard ? (

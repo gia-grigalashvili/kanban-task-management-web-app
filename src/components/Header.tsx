@@ -9,10 +9,6 @@ import moon from "/public/assets/icon-dark-theme.svg";
 import { useTheme } from "../contexts/ThemeContext";
 
 import boardig from "/public/assets/icon-board.svg";
-interface Subtask {
-  name: string;
-  done: boolean;
-}
 
 type Column = {
   name: string;
@@ -58,7 +54,7 @@ export default function Header({
   const toggleAddTaskForm = () => {
     setShowAddTaskForm(!showAddTaskForm);
   };
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
   const deltecolumn = () => {
     setdeletecolmn(!deletecolmn);
   };
@@ -96,7 +92,7 @@ export default function Header({
     setNewColumns([...newColumns, { name: "", tasks: [] }]);
   };
 
-  const handleSubtaskChange = (index, value) => {
+  const handleSubtaskChange = (index: number, value: string) => {
     const updatedSubtasks = [...subtasks];
     updatedSubtasks[index].name = value;
     setSubtasks(updatedSubtasks);
@@ -191,24 +187,24 @@ export default function Header({
           onClick={() => setShowAddTaskForm(false)}
         >
           <div
-            className="absolute left-1/2 top-20 transform -translate-x-1/2 bg-white border rounded shadow-lg sm:w-[500px] w-[350px] max-h-[600px] overflow-y-auto z-50"
+            className="absolute left-1/2 top-20 transform -translate-x-1/2 bg-white bg-white dark:bg-[#2b2c37]    border rounded shadow-lg sm:w-[500px] w-[350px] max-h-[600px] overflow-y-auto z-50"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="p-2 text-lg font-bold text-gray-800 border-b">
+            <h2 className="p-2 text-[#2b2c37] dark:text-white text-lg font-bold text-gray-800 border-b">
               Add New Task
             </h2>
             <div className="p-4">
-              <label className="block text-gray-800 font-semibold mb-2">
+              <label className="block text-[#2b2c37] dark:text-white text-gray-800 font-semibold mb-2">
                 Task Title
               </label>
               <input
                 type="text"
                 value={taskTitle}
                 onChange={(e) => setTaskTitle(e.target.value)}
-                className="w-full p-2 border rounded mb-4"
+                className="w-full  bg-white dark:bg-[#2b2c37]   text-[#2b2c37] dark:text-white p-2 border rounded mb-4"
               />
 
-              <label className="block text-gray-800 font-semibold mb-2">
+              <label className="block text-[#2b2c37] dark:text-white text-gray-800 font-semibold mb-2">
                 Subtasks
               </label>
               {subtasks.map((subtask, index) => (
@@ -217,13 +213,13 @@ export default function Header({
                     type="text"
                     value={subtask.name}
                     onChange={(e) => handleSubtaskChange(index, e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className="w-full  bg-white dark:bg-[#2b2c37]  text-[#2b2c37] dark:text-white p-2 border rounded"
                   />
                   <button
                     onClick={() => {
                       setSubtasks(subtasks.filter((_, i) => i !== index));
                     }}
-                    className="p-2 bg-red-500 text-white rounded"
+                    className="p-2   bg-red-500 text-white rounded"
                   >
                     Delete
                   </button>
@@ -231,12 +227,12 @@ export default function Header({
               ))}
               <button
                 onClick={addSubtask}
-                className="w-full p-2 text-center bg-gray-200 text-black rounded mb-4"
+                className="w-full  p-2 text-center bg-gray-200 text-black rounded mb-4"
               >
                 + Add Subtask
               </button>
 
-              <label className="block text-gray-800 font-semibold mb-2">
+              <label className="block text-[#2b2c37] dark:text-white text-gray-800 font-semibold mb-2">
                 Assign to Column
               </label>
               <select
@@ -266,11 +262,11 @@ export default function Header({
       )}
       {showtasks && !showNewBoardForm && (
         <div
-          className="fixed inset-0 bg-black  bg-opacity-50 z-50"
+          className="fixed inset-0 bg-black  justify-center  bg-opacity-50 z-50"
           onClick={() => setShowtasks(false)}
         >
           <div
-            className="absolute pb-4 left-1/2 top-20 transform -translate-x-1/2 border-none bg-white dark:bg-[#2b2c37] border rounded shadow-lg w-[300px] max-h-[400px] overflow-y-auto z-50"
+            className="absolute pb-4 left-1/2 top-20 sm:mt-[50px] transform -translate-x-1/2 border-none bg-white dark:bg-[#2b2c37]  border rounded shadow-lg w-[300px] sm:w-[400px] max-h-[400px] overflow-y-auto z-50"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="p-[10px] text-lg  font-bold text-[#828FA3] border-b">
@@ -304,11 +300,18 @@ export default function Header({
               <img className="fill-[#4d01c9c6]" src={boardig} alt="" />+ Create
               New Board
             </button>
-            <div className="w-[200px] h-[60px] flex  items-center gap-[20px] justify-center">
-              <h1 className="text-red-700 dark:text-black"> gia var</h1>
-              <img src={sun} alt="" />
-              <button onClick={toggleTheme}>dark mode</button>
-              <img src={moon} alt="" />
+            <div className="w-[250px] h-[60px]  sm:mx-[70px] bg-[#d6d6d6] dark:bg-[#20212c] mx-[20px] mt-[20px] rounded-[205px] flex items-center gap-[20px] justify-center">
+              <img src={sun} alt="Sun Icon" />
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={toggleTheme}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:bg-[#9900ff] transition-colors"></div>
+                <span className="absolute left-[2px] top-[2px] bg-white rounded-full h-5 w-5 border border-gray-300 transition-transform peer-checked:translate-x-full"></span>
+              </label>
+              <img src={moon} alt="Moon Icon" />
             </div>
           </div>
         </div>
@@ -316,27 +319,27 @@ export default function Header({
 
       {showNewBoardForm && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50"
+          className="fixed inset-0 bg-black bg-opacity-50  z-50"
           onClick={() => setShowNewBoardForm(false)}
         >
           <div
-            className="absolute left-1/2 top-20 transform md:w-[500px] md:p-[20px] -translate-x-1/2 bg-white border rounded shadow-lg w-[90%] max-h-[500px] overflow-y-auto z-50"
+            className="absolute left-1/2 top-20 transform  bg-white dark:bg-[#2b2c37] border-none  md:w-[500px] md:p-[20px] -translate-x-1/2 bg-white border rounded shadow-lg w-[90%] max-h-[500px] overflow-y-auto z-50"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="p-2 text-lg font-bold text-gray-800 border-b">
+            <h2 className=" text-[#2b2c37]  dark:text-white p-2 text-lg font-bold text-gray-800 border-b">
               Add New Board
             </h2>
-            <div className="p-4">
-              <label className="block text-gray-800 font-semibold mb-2">
+            <div className=" p-4">
+              <label className="block  text-[#2b2c37] dark:text-white   font-semibold mb-2">
                 Board Name
               </label>
               <input
                 type="text"
                 value={newBoardName}
                 onChange={(e) => setNewBoardName(e.target.value)}
-                className="w-full p-2 border rounded mb-4"
+                className="w-full bg-white dark:bg-[#2b2c37] text-[#2b2c37] dark:text-white    p-2 border rounded mb-4"
               />
-              <label className="block text-gray-800 font-semibold mb-2">
+              <label className="block text-[#2b2c37] dark:text-white  text-gray-800 font-semibold mb-2">
                 Board Columns
               </label>
               {newColumns.map((column, index) => (
@@ -345,7 +348,7 @@ export default function Header({
                     type="text"
                     value={column.name}
                     onChange={(e) => handleColumnChange(index, e.target.value)}
-                    className="w-full p-2 border rounded"
+                    className="w-full bg-white dark:bg-[#2b2c37]  text-[#2b2c37] dark:text-white  p-2 border rounded"
                   />
                   <button
                     onClick={() => {
@@ -384,7 +387,7 @@ export default function Header({
           onClick={() => setdeletecolmn(false)}
         >
           <div
-            className="w-[300px] sm:w-[500px]  bg-white p-[20px] rounded-[10px] shadow-md"
+            className="w-[300px] sm:w-[500px] bg-white dark:bg-[#2b2c37]  p-[20px] rounded-[10px] shadow-md"
             onClick={(e) => e.stopPropagation()}
           >
             <h1 className="text-xl font-bold text-red-600 mb-4">
