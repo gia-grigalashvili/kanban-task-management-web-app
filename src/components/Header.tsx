@@ -1,12 +1,49 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Logo from "/public/assets/logo-mobile.svg";
 import Chevrondonw from "/public/assets/icon-chevron-down.svg";
 import plus from "/public/assets/icon-add-task-mobile.svg";
 import Verical from "/public/assets/icon-vertical-ellipsis.svg";
-import boardig from "/public/assets/icon-board.svg";
+import sun from "/public/assets/icon-light-theme.svg";
+import moon from "/public/assets/icon-dark-theme.svg";
+import { useTheme } from "../contexts/ThemeContext";
 
-export default function Header({ activeBoard, boards, setBoards }) {
+import boardig from "/public/assets/icon-board.svg";
+interface Subtask {
+  name: string;
+  done: boolean;
+}
+
+type Column = {
+  name: string;
+  color?: string; // Make color optional
+  tasks: {
+    title: string;
+    description: string;
+    status: string;
+    subtasks: {
+      title: string;
+      isCompleted: boolean;
+    }[];
+  }[];
+};
+
+interface Board {
+  name: string;
+  columns: Column[];
+}
+
+interface PagesProps {
+  boards: Board[];
+  activeBoard: Board | null;
+  setBoards: React.Dispatch<React.SetStateAction<Board[]>>;
+}
+export default function Header({
+  activeBoard,
+  boards,
+
+  setBoards,
+}: PagesProps) {
   const [showtasks, setShowtasks] = useState(false);
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
   const [showAddTaskForm, setShowAddTaskForm] = useState(false);
@@ -21,24 +58,18 @@ export default function Header({ activeBoard, boards, setBoards }) {
   const toggleAddTaskForm = () => {
     setShowAddTaskForm(!showAddTaskForm);
   };
-
+  const { theme, toggleTheme } = useTheme();
   const deltecolumn = () => {
     setdeletecolmn(!deletecolmn);
   };
-  const addSubtask = () => {
-    setSubtasks([...subtasks, { name: "", done: false }]);
-  };
+
   // columebsis axlebis shecva inoput
-  const handleColumnChange = (index, value) => {
+  const handleColumnChange = (index: number, value: string) => {
     const updatedColumns = [...newColumns];
     updatedColumns[index].name = value;
     setNewColumns(updatedColumns);
   };
-  const handleSubtaskChange = (index, value) => {
-    const updatedSubtasks = [...subtasks];
-    updatedSubtasks[index].name = value;
-    setSubtasks(updatedSubtasks);
-  };
+
   //  Create New Board  butonis
   const handleCreateBoard = () => {
     const emptyColumns = newColumns.some((col) => !col.name.trim());
@@ -47,22 +78,34 @@ export default function Header({ activeBoard, boards, setBoards }) {
       return;
     }
 
-    const newBoard = {
+    const newBoard: Board = {
       name: newBoardName,
       columns: newColumns.filter((col) => col.name),
     };
 
-    setBoards((prevBoards) => [...prevBoards, newBoard]);
+    setBoards((prevBoards: Board[]) => [...prevBoards, newBoard]);
     setShowNewBoardForm(false);
     setShowtasks(true);
     setNewBoardName("");
     setNewColumns([{ name: "", tasks: [] }]);
     setError("");
   };
+
   //amatebs axal columns shignit xdeba daspredva da plius axlis damateba
   const addNewColumn = () => {
     setNewColumns([...newColumns, { name: "", tasks: [] }]);
   };
+
+  const handleSubtaskChange = (index, value) => {
+    const updatedSubtasks = [...subtasks];
+    updatedSubtasks[index].name = value;
+    setSubtasks(updatedSubtasks);
+  };
+
+  const addSubtask = () => {
+    setSubtasks([...subtasks, { name: "", done: false }]);
+  };
+
   const handleTaskSubmit = () => {
     if (
       !taskTitle.trim() ||
@@ -74,14 +117,25 @@ export default function Header({ activeBoard, boards, setBoards }) {
     }
 
     const updatedBoards = boards.map((board) => {
-      if (board.columns.some((col) => col.name === selectedColumn)) {
+      if (board === activeBoard) {
         return {
           ...board,
           columns: board.columns.map((col) =>
             col.name === selectedColumn
               ? {
                   ...col,
-                  tasks: [...col.tasks, { title: taskTitle, subtasks }],
+                  tasks: [
+                    ...col.tasks,
+                    {
+                      title: taskTitle,
+                      description: "Default description",
+                      status: "Todo",
+                      subtasks: subtasks.map((s) => ({
+                        title: s.name,
+                        isCompleted: s.done,
+                      })),
+                    },
+                  ],
                 }
               : col
           ),
@@ -97,18 +151,16 @@ export default function Header({ activeBoard, boards, setBoards }) {
     setSelectedColumn("");
     setError("");
   };
-
   return (
     <div className="relative">
-      <div className="flex items-center justify-between p-4 bg-white shadow-md">
+      <div className="flex items-center justify-between bg-white dark:bg-[#2b2c37] p-4  shadow-md">
         <div
           onClick={() => setShowtasks(!showtasks)}
           className="flex gap-[15px] items-center cursor-pointer"
         >
           <img src={Logo} alt="Logo" />
-          <h1 className="text-lg font-bold text-gray-800">
-            {" "}
-            {activeBoard.name}
+          <h1 className="text-lg text-[#2b2c37] dark:text-white font-bold text-gray-800">
+            {activeBoard?.name || "No active board selected"}
           </h1>
           <img src={Chevrondonw} alt="Chevron Down" />
         </div>
@@ -116,9 +168,17 @@ export default function Header({ activeBoard, boards, setBoards }) {
         <div className="flex items-center gap-[15px]">
           <div
             onClick={toggleAddTaskForm}
-            className="bg-[#635FC7] cursor-pointer w-[40px] h-[32px] flex justify-center items-center rounded-[10px]"
+            className="bg-[#635FC7] md:p-[10px] cursor-pointer md:rounded-[30px] flex justify-center items-center rounded-[10px]"
           >
-            <img src={plus} alt="Add Task" />
+            <h1 className="hidden md:block font-bold text-[17px] text-white">
+              + Add New Task
+            </h1>
+
+            <img
+              className="p-[10px] block md:hidden"
+              src={plus}
+              alt="Add Task"
+            />
           </div>
 
           <img onClick={deltecolumn} src={Verical} alt="Menu" />
@@ -131,7 +191,7 @@ export default function Header({ activeBoard, boards, setBoards }) {
           onClick={() => setShowAddTaskForm(false)}
         >
           <div
-            className="absolute left-1/2 top-20 transform -translate-x-1/2 bg-white border rounded shadow-lg w-[90%] max-h-[500px] overflow-y-auto z-50"
+            className="absolute left-1/2 top-20 transform -translate-x-1/2 bg-white border rounded shadow-lg sm:w-[500px] w-[350px] max-h-[600px] overflow-y-auto z-50"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="p-2 text-lg font-bold text-gray-800 border-b">
@@ -186,48 +246,47 @@ export default function Header({ activeBoard, boards, setBoards }) {
               >
                 <option value="">Select a Column</option>
                 {activeBoard?.columns.map((column, index) => (
-                  <option key={index} value={index}>
+                  <option key={index} value={column.name}>
                     {column.name}
                   </option>
                 ))}
               </select>
 
               {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
               <button
                 onClick={handleTaskSubmit}
-                className="w-full p-2 text-center bg-blue-500 text-white rounded"
+                className="w-full bg-[#442da8] rounded-[40px] p-2 text-center bg-blue-500 text-white rounded"
               >
-                Add Task
+                Create Task
               </button>
             </div>
           </div>
         </div>
       )}
-
       {showtasks && !showNewBoardForm && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50"
+          className="fixed inset-0 bg-black  bg-opacity-50 z-50"
           onClick={() => setShowtasks(false)}
         >
           <div
-            className="absolute  pb-4 left-1/2 top-20  transform -translate-x-1/2 bg-white border rounded shadow-lg w-[300px] max-h-[400px] overflow-y-auto z-50"
+            className="absolute pb-4 left-1/2 top-20 transform -translate-x-1/2 border-none bg-white dark:bg-[#2b2c37] border rounded shadow-lg w-[300px] max-h-[400px] overflow-y-auto z-50"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="p-[10px] text-lg  font-bold text-gray-800 border-b">
+            <h2 className="p-[10px] text-lg  font-bold text-[#828FA3] border-b">
               ALL BOARDS ({boards.length})
             </h2>
             <ul className="flex gap-[10px]  flex-col ">
-              {boards.map((item, index) => (
+              {boards.map((item: Board, index: number) => (
                 <Link
                   to={item.name}
                   key={index}
                   onClick={() => {
                     setShowtasks(false);
                   }}
-                  className="hover:bg-gray-100 cursor-pointer text-[#5a5a5a] font-bold font-poppins"
+                  className=" cursor-pointer text-[#828FA3] font-bold font-poppins"
                 >
-                  <div className="flex  hover:bg-[#4d01c9c6] rounded-r-[30px] gap-[10px] w-[250px] hover:text-[#fff] p-[10px] gap-[10px] items-center transition-colors duration-300 ease-in-out">
-                    {" "}
+                  <div className="flex hover:bg-[#4d01c9c6] rounded-r-[30px] gap-[10px] w-[250px] hover:text-[#fff] p-[10px] gap-[10px] items-center transition-colors duration-300 ease-in-out">
                     <img src={boardig} alt="" />
                     {item.name}
                   </div>
@@ -240,11 +299,17 @@ export default function Header({ activeBoard, boards, setBoards }) {
                 setShowtasks(false);
                 setShowNewBoardForm(true);
               }}
-              className="w-full items-center flex  w-[257px]  font-bold font-poppins gap-[10px] rounded-r-[30px] p-2 text-center  hover:text-[#fff] hover:bg-[#4d01c9c6] text-[#4d01c9c6] rounded mt-2"
+              className="w-full items-center flex  w-[252px]  font-bold font-poppins gap-[10px] rounded-r-[30px] p-2 text-center  hover:text-[#fff] hover:bg-[#4d01c9c6] text-[#4d01c9c6] rounded mt-2"
             >
               <img className="fill-[#4d01c9c6]" src={boardig} alt="" />+ Create
               New Board
             </button>
+            <div className="w-[200px] h-[60px] flex  items-center gap-[20px] justify-center">
+              <h1 className="text-red-700 dark:text-black"> gia var</h1>
+              <img src={sun} alt="" />
+              <button onClick={toggleTheme}>dark mode</button>
+              <img src={moon} alt="" />
+            </div>
           </div>
         </div>
       )}
@@ -255,7 +320,7 @@ export default function Header({ activeBoard, boards, setBoards }) {
           onClick={() => setShowNewBoardForm(false)}
         >
           <div
-            className="absolute left-1/2 top-20 transform -translate-x-1/2 bg-white border rounded shadow-lg w-[90%] max-h-[500px] overflow-y-auto z-50"
+            className="absolute left-1/2 top-20 transform md:w-[500px] md:p-[20px] -translate-x-1/2 bg-white border rounded shadow-lg w-[90%] max-h-[500px] overflow-y-auto z-50"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="p-2 text-lg font-bold text-gray-800 border-b">
@@ -316,35 +381,40 @@ export default function Header({ activeBoard, boards, setBoards }) {
       {deletecolmn && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          onClick={() => setdeletecolmn(false)} // Close when clicking outside
+          onClick={() => setdeletecolmn(false)}
         >
           <div
-            className="w-[300px] bg-white p-[20px] rounded-[10px] shadow-md"
-            onClick={(e) => e.stopPropagation()} // Prevent click propagation
+            className="w-[300px] sm:w-[500px]  bg-white p-[20px] rounded-[10px] shadow-md"
+            onClick={(e) => e.stopPropagation()}
           >
             <h1 className="text-xl font-bold text-red-600 mb-4">
-              Delete Board
+              Delete this board?
             </h1>
             <p className="text-gray-700 mb-4">
-              Are you sure you want to delete this board? This action cannot be
-              undone.
+              Are you sure you want to delete the ‘xxdsfssada’ board? This
+              action will remove all columns and tasks and cannot be reversed.
             </p>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end flex-col gap-2">
               <button
-                onClick={() => setdeletecolmn(false)} // Cancel deletion
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                onClick={() => setdeletecolmn(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-[30px] hover:bg-gray-400"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
-                  // Perform delete action here
-                  setBoards(
-                    boards.filter((board) => board.name !== activeBoard.name)
-                  );
-                  setdeletecolmn(false);
+                  if (activeBoard) {
+                    setBoards(
+                      boards.filter(
+                        (board: Board) => board.name !== activeBoard.name
+                      )
+                    );
+                    setdeletecolmn(false);
+                  } else {
+                    console.log("No active board to delete");
+                  }
                 }}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                className="px-4 rounded-[30px]  py-2 bg-red-500 text-white rounded hover:bg-red-600"
               >
                 Delete
               </button>

@@ -1,15 +1,17 @@
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 
+// In Pages.tsx
 type Column = {
   name: string;
-  color: string;
+  color?: string;
   tasks: {
     title: string;
+    description: string;
+    status: string;
     subtasks: {
-      title: ReactNode;
+      title: string;
       isCompleted: boolean;
-      text: string;
     }[];
   }[];
 };
@@ -18,9 +20,9 @@ type Board = {
   name: string;
   columns: Column[];
 };
+
 interface Subtask {
   isCompleted: boolean;
-  // Add other properties of the subtask here, if needed
 }
 interface PagesProps {
   boards: Board[]; // An array of `Board` objects
@@ -28,7 +30,12 @@ interface PagesProps {
   setBoards: React.Dispatch<React.SetStateAction<Board[]>>;
 }
 
-export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
+export default function Pages({
+  boards,
+  activeBoard,
+
+  setBoards,
+}: PagesProps) {
   const [showModal, setShowModal] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
   const [editedColumns, setEditedColumns] = useState<Column[]>([]);
@@ -115,8 +122,10 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
   return (
     <div className="flex">
       <div className="p-[20px] flex  gap-[30px] overflow-auto">
-        <div className="">
-          <h2>{activeBoard?.name || "Board Not Found"}</h2>
+        <div className="flex  flex-col gap-[20px]">
+          <h2 className=" font-bold text-lg text-gray-800 ">
+            {activeBoard?.name || "Board Not Found"}
+          </h2>
           <div className="flex gap-[24px]">
             {Array.isArray(activeBoard?.columns) &&
             activeBoard.columns.length > 0 ? (
@@ -142,7 +151,7 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
                           {column.tasks.map((task, taskIndex) => (
                             <li
                               key={taskIndex}
-                              className="task w-[250px] bg-white shadow-md p-[20px] rounded-[5px] cursor-pointer hover:bg-[#4d01c9c6] "
+                              className="task w-[250px] bg-white shadow-md sm:w-[300px] p-[20px] rounded-[5px] cursor-pointer hover:bg-[#4d01c9c6] "
                               onClick={() =>
                                 handleTaskClick(columnIndex, taskIndex)
                               }
@@ -182,7 +191,7 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
       </div>
       {showModal && (
         <div className="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="modal-content bg-white p-6 rounded shadow-lg w-[400px]">
+          <div className=" modal-content bg-white p-6 rounded shadow-lg  sm:w-[500px] w-[350px]">
             <h1 className="text-lg font-bold mb-4">Edit Board</h1>
             <div className="mb-4">
               <label className="block text-gray-700">Board Name:</label>
@@ -216,9 +225,9 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
               ))}
               <button
                 onClick={addNewColumn}
-                className="bg-blue-500 text-white rounded p-2 mt-2"
+                className="bg-[#5737e2] text-white rounded p-2 mt-2"
               >
-                Add Column
+                + Add New Column
               </button>
             </div>
             <div className="flex justify-end mt-4">
@@ -246,7 +255,7 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white p-6 rounded shadow-lg w-[400px]"
+            className="bg-white p-6 rounded shadow-lg  sm:w-[500px]   w-[350px]"
           >
             <h2 className="font-bold text-xl">
               Task:{" "}
@@ -316,8 +325,8 @@ export default function Pages({ boards, activeBoard, setBoards }: PagesProps) {
               ].subtasks.map((subtask, subtaskIndex) => (
                 <li
                   key={subtaskIndex}
-                  className={`subtask flex items-center gap-2 p-[10px] rounded-[3px] ${
-                    subtask.isCompleted ? "bg-green-100" : "bg-red-100"
+                  className={`subtask flex items-center gap-2 p-[15px] rounded-[3px] ${
+                    subtask.isCompleted ? "bg-green-400" : "bg-red-500"
                   }`}
                 >
                   <input
